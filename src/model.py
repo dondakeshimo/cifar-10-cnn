@@ -1,13 +1,20 @@
 import argparse
 import numpy as np
-import pandas as pd
 from termcolor import cprint
 import time
 
 from keras import backend as K
 from keras.callbacks import EarlyStopping
 from keras.callbacks import ModelCheckpoint
+from keras.datasets import cifar10
+from keras.layers import Activation
+from keras.layers import Conv2D
+from keras.layers import Dense
+from keras.layers import Dropout
+from keras.layers import Flatten
+from keras.layers import MaxPooling2D
 from keras.models import model_from_json
+from keras.models import Sequential
 from keras.utils import plot_model
 
 
@@ -17,9 +24,8 @@ BATCH_SIZE = 512 * 3
 
 class Cifar_classifier():
     def __init__(self, dir_path):
-        self.train = pd.read_csv(dir_path + "train.tsv", sep="\t")
-        self.test = pd.read_csv(dir_path + "test.tsv", sep="\t")
-        self.train["target"] = np.log1p(self.train["price"])
+        (self.X_train, self.y_train), (self.X_test, self.y_test) = \
+            cifar10.load_data()
 
     def make_model_from_pre_trained(self, pre_trained_model_path):
         with open(pre_trained_model_path + ".json", "rt")as f:
@@ -32,7 +38,26 @@ class Cifar_classifier():
         # print(self.model.summary())
 
     def make_model(self, pre_trained_model_path=None):
-        pass
+        self.model = Sequential()
+
+        self.model.add(Conv2D(32, 3, input_shape=self.X_train.shape[1:]))
+        self.model.add(Activation('relu'))
+        self.model.add(Conv2D(32, 3))
+        self.model.add(Activation('relu'))
+        self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        self.model.add(Dropout(0.25))
+
+        self.model.add(Flatten())
+        self.model.add(Dense(512))
+        self.model.add(Activation('relu'))
+        self.model.add(Dropout(0.5))
+
+        self.model.add(Dense(10))
+        self.model.add(Activation('softmax'))
+
+        self.model.compile(loss='categorical_crossentropy',
+                           optimizer='adam',
+                           metrics=['accuracy'])
 
     def train_model(self):
         self.model.fit(self.X_train,
