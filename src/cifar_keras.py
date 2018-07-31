@@ -7,62 +7,67 @@ from keras.layers import Flatten
 from keras.layers import MaxPooling2D
 from keras.layers.normalization import BatchNormalization
 from keras.models import Sequential
+from keras.optimizers import Adam
 from keras.utils.np_utils import to_categorical
-from keras.utils import plot_model
+
+
+CLASSES = 10
+EPOCHS = 100
 
 
 (X_train, y_train), (X_test, y_test) = cifar10.load_data()
-X_train.shape
+
 X_train = X_train.astype('float32')
 X_test = X_test.astype('float32')
 X_train /= 255.0
 X_test /= 255.0
 
-y_train = to_categorical(y_train, num_classes=10)
-y_test = to_categorical(y_test, num_classes=10)
+y_train = to_categorical(y_train, num_classes=CLASSES)
+y_test = to_categorical(y_test, num_classes=CLASSES)
 
 model = Sequential()
 
-model.add(Conv2D(filters=16, kernel_size=3, padding="same",
+model.add(Conv2D(filters=32, kernel_size=5, strides=2,
                  activation="relu", input_shape=X_train.shape[1:]))
 model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
-model.add(Conv2D(filters=32, kernel_size=3, padding="same",
+model.add(Conv2D(filters=128, kernel_size=3, padding="same",
                  activation="relu"))
 model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
-model.add(Conv2D(filters=64, kernel_size=2, padding="same",
+model.add(Conv2D(filters=512, kernel_size=3, padding="same",
                  activation="relu"))
-model.add(Conv2D(filters=64, kernel_size=2, padding="same",
+model.add(Conv2D(filters=512, kernel_size=3, padding="same",
                  activation="relu"))
-model.add(Conv2D(filters=32, kernel_size=2, padding="same",
+model.add(Conv2D(filters=256, kernel_size=3, padding="same",
                  activation="relu"))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
 model.add(Flatten())
-model.add(Dense(256))
+model.add(Dense(128))
 model.add(Dropout(0.25))
-model.add(Dense(256))
+model.add(Dense(128))
 model.add(Dropout(0.25))
 
 model.add(Dense(10))
 model.add(Activation('softmax'))
 
+adam = Adam(decay=1e-4)
+
 model.compile(loss='categorical_crossentropy',
-              optimizer='adam',
+              optimizer=adam,
               metrics=['accuracy'])
 
 model.summary()
 
-history = model.fit(X_train, y_train,
-                    batch_size=64,
-                    epochs=2,
-                    verbose=1,
-                    validation_split=0.1)
+model.fit(X_train, y_train,
+          batch_size=64,
+          epochs=100,
+          verbose=1,
+          validation_split=0.1)
 
 loss, acc = model.evaluate(X_test, y_test, verbose=0)
 print('Test loss:', loss)
 print('Test acc:', acc)
-plot_model(model, show_shapes=True, to_file="data/model.png")
