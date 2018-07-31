@@ -7,9 +7,8 @@ from keras.layers import Flatten
 from keras.layers import MaxPooling2D
 from keras.layers.normalization import BatchNormalization
 from keras.models import Sequential
+from keras.utils.np_utils import to_categorical
 from keras.utils import plot_model
-
-import numpy as np
 
 
 (X_train, y_train), (X_test, y_test) = cifar10.load_data()
@@ -19,8 +18,8 @@ X_test = X_test.astype('float32')
 X_train /= 255.0
 X_test /= 255.0
 
-y_train = np.eye(10)[y_train.astype("int")].reshape(50000, 10)
-y_test = np.eye(10)[y_test.astype("int")].reshape(10000, 10)
+y_train = to_categorical(y_train, num_classes=10)
+y_test = to_categorical(y_test, num_classes=10)
 
 model = Sequential()
 
