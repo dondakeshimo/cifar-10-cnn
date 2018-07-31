@@ -142,7 +142,7 @@ def main():
     start = time.time()
     args = argparser()
     print(args)
-    mercari = Predict_price(args.input_dir_path)
+    mercari = Cifar_classifier(args.input_dir_path)
     elapsed = time_measure("load data", start, 0)
     mercari.handle_nan_process()
     elapsed = time_measure("handle nan", start, elapsed)
