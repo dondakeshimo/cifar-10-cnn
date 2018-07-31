@@ -16,6 +16,7 @@ from keras.layers import MaxPooling2D
 from keras.layers.normalization import BatchNormalization
 from keras.models import model_from_json
 from keras.models import Sequential
+from keras.utils.np_utils import to_categorical
 from keras.utils import plot_model
 
 
@@ -33,10 +34,8 @@ class Cifar_classifier():
         self.X_train /= 255.0
         self.X_test /= 255.0
 
-        self.y_train = np.eye(10)[self.y_train.astype("int")]
-        self.y_test = np.eye(10)[self.y_test.astype("int")]
-        self.y_train = self.y_train.reshape(50000, 10)
-        self.y_test = self.y_test.reshape(50000, 10)
+        self.y_train = to_categorical(self.y_train, num_classes=10)
+        self.y_test = to_categorical(self.y_test, num_classes=10)
 
     def make_model_from_pre_trained(self, pre_trained_model_path):
         with open(pre_trained_model_path + ".json", "rt")as f:
@@ -54,12 +53,12 @@ class Cifar_classifier():
                               activation="relu",
                               input_shape=self.X_train.shape[1:]))
         self.model.add(BatchNormalization())
-        self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        self.model.add(MaxPooling2D(pool_size=2))
 
         self.model.add(Conv2D(filters=32, kernel_size=3, padding="same",
                               activation="relu"))
         self.model.add(BatchNormalization())
-        self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        self.model.add(MaxPooling2D(pool_size=2))
 
         self.model.add(Conv2D(filters=64, kernel_size=2, padding="same",
                               activation="relu"))
@@ -67,7 +66,7 @@ class Cifar_classifier():
                               activation="relu"))
         self.model.add(Conv2D(filters=32, kernel_size=2, padding="same",
                               activation="relu"))
-        self.model.add(MaxPooling2D(pool_size=(2, 2)))
+        self.model.add(MaxPooling2D(pool_size=2))
 
         self.model.add(Flatten())
         self.model.add(Dense(256))
