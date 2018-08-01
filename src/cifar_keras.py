@@ -8,13 +8,14 @@ from keras.layers import MaxPooling2D
 from keras.layers.normalization import BatchNormalization
 from keras.models import Sequential
 from keras.optimizers import Adam
+from keras.preprocessing.image import ImageDataGenerator
 from keras.utils.np_utils import to_categorical
 
 import numpy as np
 
 
 CLASSES = 10
-EPOCHS = 100
+EPOCHS = 20
 BATCH_SIZE = 64
 
 
@@ -70,11 +71,19 @@ model.compile(loss='categorical_crossentropy',
 
 model.summary()
 
-model.fit(X_train, y_train,
-          batch_size=BATCH_SIZE,
-          epochs=EPOCHS,
-          verbose=1,
-          validation_split=0.1)
+datagen = ImageDataGenerator(width_shift_range=0.2,
+                             height_shift_range=0.2,
+                             horizontal_flip=True)
+
+# model.fit(X_train, y_train,
+#           batch_size=BATCH_SIZE,
+#           epochs=EPOCHS,
+#           verbose=1,
+#           validation_split=0.1)
+
+model.fit_generator(datagen.flow(X_train, y_train, BATCH_SIZE),
+                    steps_per_epoch=len(X_train) // BATCH_SIZE,
+                    epochs=EPOCHS)
 
 loss, acc = model.evaluate(X_test, y_test, verbose=0)
 print('Test loss:', loss)
