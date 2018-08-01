@@ -15,6 +15,7 @@ import numpy as np
 
 CLASSES = 10
 EPOCHS = 100
+BATCH_SIZE = 64
 
 
 (X_train, y_train), (X_test, y_test) = cifar10.load_data()
@@ -70,8 +71,8 @@ model.compile(loss='categorical_crossentropy',
 model.summary()
 
 model.fit(X_train, y_train,
-          batch_size=64,
-          epochs=100,
+          batch_size=BATCH_SIZE,
+          epochs=EPOCHS,
           verbose=1,
           validation_split=0.1)
 
