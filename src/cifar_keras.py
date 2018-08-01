@@ -10,6 +10,8 @@ from keras.models import Sequential
 from keras.optimizers import Adam
 from keras.utils.np_utils import to_categorical
 
+import numpy as np
+
 
 CLASSES = 10
 EPOCHS = 100
@@ -21,6 +23,11 @@ X_train = X_train.astype('float32')
 X_test = X_test.astype('float32')
 X_train /= 255.0
 X_test /= 255.0
+
+mean = np.mean(X_train, axis=(0, 1, 2, 3))
+std = np.std(X_train, axis=(0, 1, 2, 3))
+X_train = (X_train - mean) / (std + 1e-7)
+X_test = (X_test - mean) / (std + 1e-7)
 
 y_train = to_categorical(y_train, num_classes=CLASSES)
 y_test = to_categorical(y_test, num_classes=CLASSES)
